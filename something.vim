@@ -1,13 +1,23 @@
 source autoload/parinfer_lib.vim
 
 function! Parpar()
-	let result = parinfer_lib#IndentMode(join(getline(1, '$'), '\n'), {})
+	let save_cursor = getcurpos()
+	let input = join(getline(1, '$'), '\n')
+	" echo input
+	let result = parinfer_lib#IndentMode(input, { 'cursorX': save_cursor })
 	normal! ggdG
-	call append(0, split(result.text, '\\n'))
+	" echo result
+	%d | put =split(result.text, '\\n') | 1d
+	" call append(0, split(result.text, '\\n'))
+	call setpos('.', save_cursor)
 endfunction
 
-au TextChanged *.clj call Parpar()
-au TextChangedI *.clj call Parpar()
+au! TextChanged
+au! TextChangedI
 
-" TODO
-" - Move cursor to correct position
+au TextChanged *.clj call Parpar()
+au InsertLeave *.clj call Parpar()
+
+func TT(timer)
+	echo 'timer!'
+endfunc
